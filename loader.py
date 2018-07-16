@@ -7,8 +7,8 @@ import random
 path = "./data/train/"
 labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 
-width = 500
-height = 500
+width = 299
+height = 299
 
 
 # 读取图片
@@ -160,10 +160,10 @@ class DataSet:
 if __name__ == '__main__':
 
     # 序列化数据集
-    # save_data_sets(path)
-    x_train = reload_pickle('data/x_train.pkl')
-    y_train = reload_pickle('data/y_train.pkl')
+    save_data_sets(path)
+    # x_train = reload_pickle('data/x_train.pkl')
+    # y_train = reload_pickle('data/y_train.pkl')
     # a, b = next_batch(x_train, y_train).__next__()
-    x, y = DataSet(x_train, y_train).next_batch()
-    print(x.shape, y.shape)
-    print()
+    # x, y = DataSet(x_train, y_train).next_batch()
+    # print(x.shape, y.shape)
+
