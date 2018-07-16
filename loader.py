@@ -53,7 +53,8 @@ def split_dataset(x, y, train_test_prop=0.8):
     x_test = x[train_data_num:]
     y_test = y[train_data_num:]
 
-    return x_train, y_train, x_test, y_test
+    return np.array(x_train), np.array(y_train), np.array(x_test), np.array(y_test)
+    # return x_train, y_train, x_test, y_test
 
 
 # reshape图片
@@ -112,23 +113,57 @@ def save_data_sets(path):
     pickle_data(y_test, 'data/y_test.pkl')
 
 
-def next_batch(x, y, batch_size=20):
+# 第一种迭代器
+# def next_batch(x, y, batch_size=20):
+#
+#     x_batch = np.zeros((batch_size, width, height, 3), dtype=np.uint8)
+#     y_batch = np.zeros((batch_size, len(labels)), dtype=np.uint8)
+#     data_num = len(x)
+#     while True:
+#         for i in range(batch_size):
+#             index = random.randint(0, data_num-1)
+#             x_batch[i] = x[index]
+#             y_batch[i] = y[index]
+#         yield x_batch, y_batch
 
-    x_batch = np.zeros((batch_size, width, height, 3), dtype=np.uint8)
-    y_batch = np.zeros((batch_size, len(labels)), dtype=np.uint8)
-    data_num = len(x)
-    while True:
-        for i in range(batch_size):
-            index = random.randint(0, data_num-1)
-            x_batch[i] = x[index]
-            y_batch[i] = y[index]
-        yield x_batch, y_batch
+
+# 第二种迭代器
+class DataSet:
+
+    def __init__(self, x, y):
+        self._index_in_epoch = 0
+        self._x = x
+        self._y = y
+        self._num_examples = x.shape[0]   # len(x)
+        self._epochs_completed = 0
+
+    def next_batch(self, batch_size=32):
+
+        start = self._index_in_epoch
+        self._index_in_epoch += batch_size
+        if self._index_in_epoch > self._num_examples:
+            # 完成一轮
+            self._epochs_completed += 1
+            # 打乱数据
+            perm = np.arange(self._num_examples)
+            np.random.shuffle(perm)
+            self._x = self._x[perm]
+            self._y = self._y[perm]
+            # 开始新的迭代
+            start = 0
+            self._index_in_epoch = batch_size
+            assert batch_size <= self._num_examples
+        end = self._index_in_epoch
+        return self._x[start:end], self._y[start:end]
 
 
 if __name__ == '__main__':
 
+    # 序列化数据集
     # save_data_sets(path)
     x_train = reload_pickle('data/x_train.pkl')
     y_train = reload_pickle('data/y_train.pkl')
-    a, b = next_batch(x_train, y_train).__next__()
-
+    # a, b = next_batch(x_train, y_train).__next__()
+    x, y = DataSet(x_train, y_train).next_batch()
+    print(x.shape, y.shape)
+    print()
