@@ -6,13 +6,16 @@ import random
 
 path = "./data/train/"
 labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+data_set_x = './data/data_set_x.pkl'
+data_set_y = './data/data_set_y.pkl'
 
 width = 299
 height = 299
+batch_size = 32
 
 
 # 读取图片
-def load_data(path):
+def load_images(path):
 
     image_labels = []
     for index, label in enumerate(labels):
@@ -102,15 +105,18 @@ def reload_pickle(file):
     return data
 
 
-def save_data_sets(path):
+def load_data(path):
 
-    data = load_data(path)
-    x, y = preprocess(data)
-    x_train, y_train, x_test, y_test = split_dataset(x, y)
-    pickle_data(x_train, 'data/x_train.pkl')
-    pickle_data(y_train, 'data/y_train.pkl')
-    pickle_data(x_test, 'data/x_test.pkl')
-    pickle_data(y_test, 'data/y_test.pkl')
+    if not (os.path.exists(data_set_x) or os.path.exists(data_set_y)):
+        data = load_images(path)
+        x, y = preprocess(data)
+        pickle_data(x, data_set_x)
+        pickle_data(y, data_set_y)
+
+    x_load = reload_pickle(data_set_x)
+    y_load = reload_pickle(data_set_y)
+
+    return split_dataset(x_load, y_load)
 
 
 # 第一种迭代器
@@ -128,7 +134,7 @@ def save_data_sets(path):
 
 
 # 第二种迭代器
-class DataSet:
+class generator:
 
     def __init__(self, x, y):
         self._index_in_epoch = 0
@@ -137,7 +143,7 @@ class DataSet:
         self._num_examples = x.shape[0]   # len(x)
         self._epochs_completed = 0
 
-    def next_batch(self, batch_size=32):
+    def next_batch(self):
 
         start = self._index_in_epoch
         self._index_in_epoch += batch_size
@@ -155,15 +161,4 @@ class DataSet:
             assert batch_size <= self._num_examples
         end = self._index_in_epoch
         return self._x[start:end], self._y[start:end]
-
-
-if __name__ == '__main__':
-
-    # 序列化数据集
-    save_data_sets(path)
-    # x_train = reload_pickle('data/x_train.pkl')
-    # y_train = reload_pickle('data/y_train.pkl')
-    # a, b = next_batch(x_train, y_train).__next__()
-    # x, y = DataSet(x_train, y_train).next_batch()
-    # print(x.shape, y.shape)
 
