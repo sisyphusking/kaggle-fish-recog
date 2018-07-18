@@ -1,11 +1,16 @@
 import tensorflow as tf
 import loader
+from data_augment import image_data_augment
 import tensorflow.contrib.slim as slim
 from tensorflow.keras.applications import inception_v3  # 加载keras中保存的模型
 import tensorflow.contrib.slim.nets as nets
 
 
 x_train, y_train, x_test, y_test = loader.load_data(loader.path)
+
+# 加载数据集的生成器
+# load_train_set = loader.generator(x_train, y_train)
+# load_test_set = loader.generator(x_test, y_test)
 
 n_batch = x_train.shape[0]//loader.batch_size  # “//”运算符是执行除法后，取整
 
@@ -14,8 +19,11 @@ y = tf.placeholder(tf.float32, [None, 8])
 
 # 读取inception_v3模型
 with slim.arg_scope(nets.inception.inception_v1_arg_scope()):
-    logits, end_points = nets.inception.inception_v3(inputs=x, is_training=False)  # 这个输出的是[batch_size, num_classes]
-    # final_endpoint, end_points = nets.inception.inception_v3_base(inputs=x)  # 这个的输出是8*8*2048
+    # 这个输出的是[batch_size, num_classes]
+    logits, end_points = nets.inception.inception_v3(inputs=x, is_training=False)
+
+    # 这个的输出是8*8*2048
+    # final_endpoint, end_points = nets.inception.inception_v3_base(inputs=x)
 
 final = end_points['PreLogits']  # final: [batch_size, 1, 1, 2048]
 
@@ -24,7 +32,7 @@ final = end_points['PreLogits']  # final: [batch_size, 1, 1, 2048]
 
 
 def weight_variable(shape):
-    initial = tf.truncated_normal(shape, stddev=0.1)  # 生成一个截断的正态分布
+    initial = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(initial)
 
 
@@ -53,13 +61,14 @@ accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    load_train_set = loader.generator(x_train, y_train)
-    load_test_set = loader.generator(x_test, y_test)
+
     for i in range(10):
         for batch in range(n_batch):
-            _x, _y = load_train_set.next_batch()
+            # _x, _y = load_train_set.next_batch()
+            _x, _y = image_data_augment(x_train, y_train)
             prob = sess.run(train_step, feed_dict={x: _x, y: _y})
-        _x_test, _y_test = load_train_set.next_batch()
+        # _x_test, _y_test = load_train_set.next_batch()
+        _x_test, _y_test = image_data_augment(x_test, y_test)
         acc = sess.run(accuracy, feed_dict={x: _x_test, y: _y_test})
         print("Iter " + str(i) + ", Testing Accuracy= " + str(acc))
 
