@@ -1,6 +1,6 @@
 import tensorflow as tf
 import loader
-from data_augment import image_data_augment
+from data_augment import DataGen
 import tensorflow.contrib.slim as slim
 from tensorflow.keras.applications import inception_v3  # 加载keras中保存的模型
 import tensorflow.contrib.slim.nets as nets
@@ -11,6 +11,9 @@ x_train, y_train, x_test, y_test = loader.load_data(loader.path)
 # 加载数据集的生成器
 # load_train_set = loader.generator(x_train, y_train)
 # load_test_set = loader.generator(x_test, y_test)
+
+train_set = DataGen(x_train, y_train)
+test_set = DataGen(x_test, y_test)
 
 n_batch = x_train.shape[0]//loader.batch_size  # “//”运算符是执行除法后，取整
 
@@ -65,10 +68,11 @@ with tf.Session() as sess:
     for i in range(10):
         for batch in range(n_batch):
             # _x, _y = load_train_set.next_batch()
-            _x, _y = image_data_augment(x_train, y_train)
+            _x, _y = train_set.next()
             prob = sess.run(train_step, feed_dict={x: _x, y: _y})
         # _x_test, _y_test = load_train_set.next_batch()
-        _x_test, _y_test = image_data_augment(x_test, y_test)
+        _x_test, _y_test = test_set.next()
         acc = sess.run(accuracy, feed_dict={x: _x_test, y: _y_test})
         print("Iter " + str(i) + ", Testing Accuracy= " + str(acc))
 
+# todo: transfer learning and kaggle demo

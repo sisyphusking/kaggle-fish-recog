@@ -9,9 +9,10 @@ class TestDataAug(tf.test.TestCase):
         x_load = loader.reload_pickle('../data/data_set_x.pkl')
         y_load = loader.reload_pickle('../data/data_set_y.pkl')
         x_train, y_train, x_test, y_test = loader.split_dataset(x_load, y_load)
+        train_set = data_augment.DataGen(x_train, y_train)
         for i in range(3):
-            _x_train, _y_train = data_augment.image_data_augment(x_train, y_train)
+            x, y = train_set.next()
             print("*"*20)
-            print(_y_train)
-        print(_x_train.shape)
+            print(y)
+        print(x.shape)
 
