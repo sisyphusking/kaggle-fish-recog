@@ -2,7 +2,7 @@ import os
 import numpy as np
 from PIL import Image
 import pickle
-import random
+import glob
 
 path = "./data/train/"
 labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
@@ -15,17 +15,27 @@ batch_size = 32
 
 
 # 读取图片
-def load_images(path):
+# def load_images(path):
+#
+#     image_labels = []
+#     for index, label in enumerate(labels):
+#         for _ in os.listdir(path):
+#             if _ == label:
+#                 label_dir = os.path.join(path, _)
+#                 for k in os.listdir(label_dir):
+#                     image_path = os.path.join(label_dir, k)
+#                     image_labels.append([image_path, index])
+#     return image_labels
 
-    image_labels = []
+def load_images(path):
+    images_labels = []
     for index, label in enumerate(labels):
-        for _ in os.listdir(path):
-            if _ == label:
-                label_dir = os.path.join(path, _)
-                for k in os.listdir(label_dir):
-                    image_path = os.path.join(label_dir, k)
-                    image_labels.append([image_path, index])
-    return image_labels
+        image_path = os.path.join(path, label, '*.jpg')
+        files = glob.glob(image_path)
+
+        for file in files:
+            images_labels.append([file, index])
+    return images_labels
 
 
 # 数据预处理
