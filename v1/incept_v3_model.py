@@ -21,7 +21,7 @@ x = tf.placeholder(tf.float32, [None, loader.width, loader.height, 3])
 y = tf.placeholder(tf.float32, [None, 8])
 
 # 读取inception_v3模型
-with slim.arg_scope(nets.inception.inception_v1_arg_scope()):
+with slim.arg_scope(nets.inception.inception_v3_arg_scope()):
     # 这个输出的是[batch_size, num_classes]
     logits, end_points = nets.inception.inception_v3(inputs=x, is_training=False)
 
@@ -55,17 +55,19 @@ prediction = tf.nn.softmax(tf.matmul(h_flat, W_fc1)+b_fc1)
 
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=prediction))
 # 使用AdamOptimizer优化
-train_step = tf.train.AdamOptimizer(1e-2).minimize(cross_entropy)
-
+# train_step = tf.train.AdamOptimizer(1e-2).minimize(cross_entropy)
+# 使用梯度下降优化
+train_step = tf.train.GradientDescentOptimizer(1e-3).minimize(cross_entropy)
 
 correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(prediction, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 
 with tf.Session() as sess:
+    # tf.get_variable_scope().reuse_variables()   # 允许复用参数，一般在使用adam优化器时会出现这种问题
     sess.run(tf.global_variables_initializer())
 
-    for i in range(10):
+    for i in range(30):
         for batch in range(n_batch):
             # _x, _y = load_train_set.next_batch()
             _x, _y = train_set.next()
@@ -74,5 +76,3 @@ with tf.Session() as sess:
         _x_test, _y_test = test_set.next()
         acc = sess.run(accuracy, feed_dict={x: _x_test, y: _y_test})
         print("Iter " + str(i) + ", Testing Accuracy= " + str(acc))
-
-# todo: transfer learning and kaggle demo

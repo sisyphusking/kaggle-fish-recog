@@ -6,8 +6,8 @@ import glob
 
 path = "./data/train/"
 labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
-data_set_x = './data/data_set_x.pkl'
-data_set_y = './data/data_set_y.pkl'
+data_set_x = '../data/data_set_x.pkl'
+data_set_y = '../data/data_set_y.pkl'
 
 width = 299
 height = 299
