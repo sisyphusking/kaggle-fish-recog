@@ -90,7 +90,7 @@ def resize_image(path):
 
 def plot_image(path):
 
-    if isinstance(str, path):
+    if isinstance(path, str):
 
         image = Image.open(path)
         print(path)
@@ -98,7 +98,7 @@ def plot_image(path):
         print((x, y))
         image.show()
     else:
-        new_image = Image.fromarray(path.astype(np.uint8))
+        new_image = Image.fromarray(path.astype(np.uint8), 'RGB')
         new_image.show()
 
 
