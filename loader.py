@@ -4,15 +4,8 @@ from PIL import Image
 import pickle
 import glob
 
-path = "./data/train/"
+
 labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
-data_set_x = '../data/data_set_x.pkl'
-data_set_y = '../data/data_set_y.pkl'
-
-width = 299
-height = 299
-batch_size = 32
-
 
 # 读取图片
 # def load_images(path):
@@ -27,6 +20,7 @@ batch_size = 32
 #                     image_labels.append([image_path, index])
 #     return image_labels
 
+
 def load_images(path):
     images_labels = []
     for index, label in enumerate(labels):
@@ -39,7 +33,7 @@ def load_images(path):
 
 
 # 数据预处理
-def preprocess(dataset):
+def preprocess(dataset, width, height):
 
     np.random.shuffle(dataset)
     X = []
@@ -47,7 +41,7 @@ def preprocess(dataset):
     for data in dataset:
         # image = Image.open(data[0])
         # image_vec = np.array(image)
-        image_vec = resize_image(data[0])
+        image_vec = resize_image(data[0], width, height)
         label = np.zeros(len(labels))
         label[data[1]] = 1
         X.append(image_vec)
@@ -71,7 +65,7 @@ def split_dataset(x, y, train_test_prop=0.8):
 
 
 # reshape图片
-def resize_image(path):
+def resize_image(path, width, height):
 
     image = Image.open(path)
 
@@ -115,11 +109,11 @@ def reload_pickle(file):
     return data
 
 
-def load_data(path):
+def load_data(path, data_set_x, data_set_y, width, height):
 
     if not (os.path.exists(data_set_x) or os.path.exists(data_set_y)):
         data = load_images(path)
-        x, y = preprocess(data)
+        x, y = preprocess(data, width, height)
         pickle_data(x, data_set_x)
         pickle_data(y, data_set_y)
 
@@ -153,7 +147,7 @@ class generator:
         self._num_examples = x.shape[0]   # len(x)
         self._epochs_completed = 0
 
-    def next_batch(self):
+    def next_batch(self, batch_size=32):
 
         start = self._index_in_epoch
         self._index_in_epoch += batch_size

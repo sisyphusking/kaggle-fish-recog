@@ -1,14 +1,15 @@
 import glob
 import os
 import loader
-from PIL import Image
 import random
-
+import config
+import tensorflow as tf
 labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
 path = "../data/train/"
+param_config = config.InceptionModel
 
 
-class TestLoader:
+class TestLoader(tf.test.TestCase):
 
     def test_image_load(self):
 
@@ -21,11 +22,15 @@ class TestLoader:
             for file in files:
 
                 images_path.append([file, index])
-
-        # print(images_path)
         print(len(images_path))
 
     def test_plot_image(self):
-
-        x_train, y_train, x_test, y_test = loader.load_data(loader.path)
-        loader.plot_image(random.choice(x_train))
+        x_train, y_train, x_test, y_test = loader.load_data(
+            param_config.PATH,
+            param_config.X_PKL,
+            param_config.Y_PKL,
+            param_config.INCEPT_WIDTH,
+            param_config.INCEPT_HEIGHT
+        )
+        loader.plot_image(x_train[random.randint(0, len(x_train))])
+        # print(x_train[0])

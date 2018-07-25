@@ -1,6 +1,5 @@
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-
 # 参考文档：https://keras-cn.readthedocs.io/en/latest/preprocessing/image/
 
 # def image_data_augment(x, y):
@@ -19,7 +18,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 class DataGen:
-    def __init__(self, x, y):
+    def __init__(self, x, y, batch_size=64):
         self.data_gen = ImageDataGenerator(
             rescale=None,  # 1./255,
             shear_range=0.1,
@@ -30,7 +29,7 @@ class DataGen:
             horizontal_flip=True)
 
         self.data_gen.fit(x)
-        self.generator = self.data_gen.flow(x, y, batch_size=64)
+        self.generator = self.data_gen.flow(x, y, batch_size=batch_size)
 
     def next(self):
         return self.generator.next()
