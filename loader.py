@@ -111,6 +111,11 @@ def reload_pickle(file):
 
 def load_data(path, data_set_x, data_set_y, width, height):
 
+    if not (data_set_x and data_set_y):
+        data = load_images(path)
+        x, y = preprocess(data, width, height)
+        return split_dataset(x, y)
+
     if not (os.path.exists(data_set_x) or os.path.exists(data_set_y)):
         data = load_images(path)
         x, y = preprocess(data, width, height)
@@ -121,48 +126,4 @@ def load_data(path, data_set_x, data_set_y, width, height):
     y_load = reload_pickle(data_set_y)
 
     return split_dataset(x_load, y_load)
-
-
-# 第一种迭代器
-# def next_batch(x, y, batch_size=20):
-#
-#     x_batch = np.zeros((batch_size, width, height, 3), dtype=np.uint8)
-#     y_batch = np.zeros((batch_size, len(labels)), dtype=np.uint8)
-#     data_num = len(x)
-#     while True:
-#         for i in range(batch_size):
-#             index = random.randint(0, data_num-1)
-#             x_batch[i] = x[index]
-#             y_batch[i] = y[index]
-#         yield x_batch, y_batch
-
-
-# 第二种迭代器
-class generator:
-
-    def __init__(self, x, y):
-        self._index_in_epoch = 0
-        self._x = x
-        self._y = y
-        self._num_examples = x.shape[0]   # len(x)
-        self._epochs_completed = 0
-
-    def next_batch(self, batch_size=32):
-
-        start = self._index_in_epoch
-        self._index_in_epoch += batch_size
-        if self._index_in_epoch > self._num_examples:
-            # 完成一轮
-            self._epochs_completed += 1
-            # 打乱数据
-            perm = np.arange(self._num_examples)
-            np.random.shuffle(perm)
-            self._x = self._x[perm]
-            self._y = self._y[perm]
-            # 开始新的迭代
-            start = 0
-            self._index_in_epoch = batch_size
-            assert batch_size <= self._num_examples
-        end = self._index_in_epoch
-        return self._x[start:end], self._y[start:end]
 

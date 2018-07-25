@@ -16,8 +16,8 @@ x_train, y_train, x_test, y_test = loader.load_data(
                                                 )
 
 # 加载数据集的生成器
-# load_train_set = loader.generator(x_train, y_train)
-# load_test_set = loader.generator(x_test, y_test)
+# load_train_set = data_augment.generator(x_train, y_train)
+# load_test_set = data_augment.generator(x_test, y_test)
 
 train_set = DataGen(x_train, y_train, batch_size=param_config.BATCH_SIZE)
 test_set = DataGen(x_test, y_test, batch_size=param_config.BATCH_SIZE)
