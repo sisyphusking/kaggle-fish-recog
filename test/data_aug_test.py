@@ -14,6 +14,7 @@ class TestDataAug(tf.test.TestCase):
 
         img = image.load_img(data_set[0][0])
         plt.imshow(img)
+        plt.savefig("../data/image/origin.jpg")
         plt.show()
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
@@ -24,7 +25,8 @@ class TestDataAug(tf.test.TestCase):
             for j in range(3):
                 _x, y = train_set.next()
                 idx = (3 * i) + j
-                plt.subplot(3, 3, idx + 1)
+                # plt.subplot(3, 3, idx + 1)
                 plt.imshow(_x[0]/256)
+                plt.savefig('../data/image/{}-{}.jpg'.format(i, j))
                 plt.show()
 
