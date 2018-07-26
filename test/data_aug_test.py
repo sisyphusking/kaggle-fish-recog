@@ -1,18 +1,30 @@
 import loader
 import data_augment
 import tensorflow as tf
+from keras.preprocessing import image
+import  matplotlib.pyplot as plt
+import numpy as np
+
+data_set = loader.load_images("../data/train/")
 
 
 class TestDataAug(tf.test.TestCase):
 
     def test_data_aug(self):
-        x_load = loader.reload_pickle('../data/data_set_x.pkl')
-        y_load = loader.reload_pickle('../data/data_set_y.pkl')
-        x_train, y_train, x_test, y_test = loader.split_dataset(x_load, y_load)
-        train_set = data_augment.DataGen(x_train, y_train)
+
+        img = image.load_img(data_set[0][0])
+        plt.imshow(img)
+        plt.show()
+        x = image.img_to_array(img)
+        x = np.expand_dims(x, axis=0)
+
+        train_set = data_augment.DataGen(x, np.array([1]), batch_size=1)
+        plt.figure()
         for i in range(3):
-            x, y = train_set.next()
-            print("*"*20)
-            print(y)
-        print(x.shape)
+            for j in range(3):
+                _x, y = train_set.next()
+                idx = (3 * i) + j
+                plt.subplot(3, 3, idx + 1)
+                plt.imshow(_x[0]/256)
+                plt.show()
 
