@@ -1,5 +1,5 @@
 import loader
-import data_augment
+import augment
 import tensorflow as tf
 from keras.preprocessing import image
 import  matplotlib.pyplot as plt
@@ -18,7 +18,7 @@ class TestDataAug(tf.test.TestCase):
         x = image.img_to_array(img)
         x = np.expand_dims(x, axis=0)
 
-        train_set = data_augment.DataGen(x, np.array([1]), batch_size=1)
+        train_set = augment.DataGen(x, np.array([1]), batch_size=1)
         plt.figure()
         for i in range(3):
             for j in range(3):
