@@ -1,20 +1,38 @@
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
+import os
 
-# 参考文档：https://keras-cn.readthedocs.io/en/latest/preprocessing/image/
 
-# def image_data_augment(x, y):
-#     data_gen = ImageDataGenerator(
-#             rescale=None,  # 1./255,
-#             shear_range=0.1,
-#             zoom_range=0.1,
-#             rotation_range=10.,
-#             width_shift_range=0.1,
-#             height_shift_range=0.1,
-#             horizontal_flip=True)
-#     data_gen.fit(x)
-#
-#     generator = data_gen.flow(x, y, batch_size=64)
-#     return generator
+class ImageGen:
+
+    def __init__(self, src_path, dest_path):
+        self.src_path = os.path.join(src_path)
+        self.dest_path = os.path.join(dest_path)
+        self.data_gen = ImageDataGenerator(
+                                rotation_range=40,
+                                width_shift_range=0.2,
+                                height_shift_range=0.2,
+                                shear_range=0.2,
+                                zoom_range=0.2,
+                                horizontal_flip=True,
+                                fill_mode='nearest')
+
+    def gen_image(self, multiple=2):
+        labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
+        for index, label in enumerate(labels):
+            dest_images_dir = os.path.join(self.dest_path, label)
+            src_images_dir = os.path.join(self.src_path, label)
+            if not os.path.exists(dest_images_dir):
+                os.makedirs(dest_images_dir)
+            for file in os.listdir(src_images_dir):
+                img = load_img(os.path.join(src_images_dir, file))
+                img.save(os.path.join(dest_images_dir, file))
+                x = img_to_array(img)
+                x = x.reshape((1,) + x.shape)
+                i = 0
+                for batch in self.data_gen.flow(x, batch_size=1, save_to_dir=dest_images_dir, save_format='jpg'):
+                    i += 1
+                    if i > multiple-1:
+                        break
 
 
 class DataGen:
