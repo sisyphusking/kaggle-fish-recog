@@ -5,15 +5,11 @@ from tensorflow.python.platform import gfile
 import numpy as np
 import os
 import augment
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
+from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-from sklearn.calibration import CalibratedClassifierCV
-from sklearn import svm
 
-# https://www.kaggle.com/craigglastonbury/using-inceptionv3-features-svm-classifier/comments
-# https://becominghuman.ai/transfer-learning-retraining-inception-v3-for-custom-image-classification-2820f653c557
 
-# todo svm
+# todo svm , loss figure, random forest
 param_config = InceptionModel()
 
 if not os.listdir(param_config.DEST_PATH):
@@ -64,17 +60,12 @@ def extract_lables(y, pickle_file=None):
 if __name__ == '__main__':
 
     features = extract_features(param_config.MODEL_PATH, X, param_config.PICKLE_X_FILE)
-    # labels = extract_lables(Y, param_config.PICKLE_Y_FILE)   # 使用label会报错,svm中y值不能是one-hot形式
-
+    # 使用label会报错,svm中y值不能是one-hot形式
     x_train, x_test, y_train, y_test = train_test_split(features, Y, test_size=0.1, random_state=0)
 
-    clf = SVC(kernel='linear', C=0.1).fit(x_train, y_train)
+    clf = SVC(kernel='linear', C=0.09).fit(x_train, y_train)
     y_pred = clf.predict(x_test)
-    count = 0
-    for i in range(len(y_pred)):
-        if y_pred[i] == y_test[i]:
-            count+=1
-    print(count)
-    print("accuracy: ", count/len(y_test))
+    accuracy = sum([y_pred[i] == y_test[i] for i in range(len(y_test))])/len(y_test)
+    print("accuracy: ", accuracy)
 
 
