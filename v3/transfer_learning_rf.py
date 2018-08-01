@@ -27,10 +27,15 @@ if __name__ == '__main__':
 
     x_train, x_test, y_train, y_test = train_test_split(features, Y, test_size=0.1, random_state=0)
 
-    # 从2048维度降到200
+    # 特征缩放
+    # from sklearn.preprocessing import StandardScaler
+    # sc = StandardScaler()
+    # X_train = sc.fit_transform(x_train)
+    # X_test = sc.transform(x_test)
+
+    # pca降维
     # n_components = 500
     # pca = PCA(n_components=n_components).fit(x_train)
-    #
     # x_train_pca = pca.transform(x_train)
     # x_test_pca = pca.transform(x_test)
 
