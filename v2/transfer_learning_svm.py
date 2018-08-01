@@ -13,7 +13,6 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 
 
-# todo svm , loss figure, random forest
 param_config = InceptionModel()
 
 if not os.listdir(param_config.DEST_PATH):
@@ -76,7 +75,7 @@ if __name__ == '__main__':
     # 使用label会报错,svm中y值不能是one-hot形式
     x_train, x_test, y_train, y_test = train_test_split(features, Y, test_size=0.1, random_state=0)
 
-    # 降维，从2048维度降到200
+    # 从2048维度降到200
     n_components = 200
     pca = PCA(n_components=n_components).fit(x_train)
 
@@ -84,24 +83,18 @@ if __name__ == '__main__':
     x_test_pca = pca.transform(x_test)
 
     param_grid = {
-        'kernel': ['rbf', 'linear', 'sigmoid', 'poly'],
         "C": [1e3, 5e3, 1e4, 1e5],
         "gamma": [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1]
     }
-
-    clf = GridSearchCV(SVC(class_weight='balanced'), param_grid=param_grid).fit(x_train_pca, y_train)
-
-    # param_grid = {
-    #     "C": [1e3, 5e3, 1e4, 1e5],
-    #     "gamma": [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1]
-    # }
-    # clf = GridSearchCV(SVC(kernel='rbf', class_weight='balanced'), param_grid=param_grid).fit(x_train_pca, y_train)
+    clf = GridSearchCV(SVC(kernel='rbf', class_weight='balanced'), param_grid=param_grid, n_jobs=-1).fit(x_train_pca, y_train)
 
     accuracy = clf.score(x_test_pca, y_test)
     print("accuracy: ", accuracy)
-    print("the best estimator: ", clf.best_estimator_)  # 打印出最优的分类器以及参数
-
+    # 打印出最优的分类器以及参数
+    print("the best estimator: ", clf.best_estimator_)
     y_pred = clf.predict(x_test_pca)
     labels = ['ALB', 'BET', 'DOL', 'LAG', 'NoF', 'OTHER', 'SHARK', 'YFT']
     print(classification_report(y_test, y_pred, target_names=labels))
-    print(confusion_matrix(y_test, y_pred, labels=range(8)))  # 对角线数字越多，就表示准确率越高
+    # 对角线数字越多，就表示准确率越高
+    print(confusion_matrix(y_test, y_pred, labels=range(8)))
+
