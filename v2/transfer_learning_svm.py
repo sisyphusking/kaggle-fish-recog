@@ -13,16 +13,6 @@ from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
 
 
-param_config = InceptionModel()
-
-if not os.listdir(param_config.DEST_PATH):
-    augment.ImageGen(param_config.PATH, param_config.DEST_PATH).gen_image()
-print("generate images end...")
-data_set = loader.load_images(param_config.DEST_PATH)
-X = [data[0] for data in data_set]
-Y = [data[1] for data in data_set]
-
-
 def extract_features(model_path, X, pickle_file=None):
 
     if os.path.exists(pickle_file):
@@ -71,6 +61,16 @@ def train(x_train, y_train, x_test, y_test, kernel='linear', C=1):
 
 if __name__ == '__main__':
 
+    param_config = InceptionModel()
+
+    if not os.listdir(param_config.DEST_PATH):
+        augment.ImageGen(param_config.PATH, param_config.DEST_PATH).gen_image()
+    print("generate images end...")
+
+    data_set = loader.load_images(param_config.DEST_PATH)
+    X = [data[0] for data in data_set]
+    Y = [data[1] for data in data_set]
+
     features = extract_features(param_config.MODEL_PATH, X, param_config.PICKLE_X_FILE)
     # 使用label会报错,svm中y值不能是one-hot形式
     x_train, x_test, y_train, y_test = train_test_split(features, Y, test_size=0.1, random_state=0)
@@ -86,7 +86,8 @@ if __name__ == '__main__':
         "C": [1e3, 5e3, 1e4, 1e5],
         "gamma": [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.1]
     }
-    clf = GridSearchCV(SVC(kernel='rbf', class_weight='balanced'), param_grid=param_grid, n_jobs=-1).fit(x_train_pca, y_train)
+    clf = GridSearchCV(SVC(kernel='rbf', class_weight='balanced'),
+                       param_grid=param_grid, n_jobs=-1).fit(x_train_pca, y_train)
 
     accuracy = clf.score(x_test_pca, y_test)
     print("accuracy: ", accuracy)
